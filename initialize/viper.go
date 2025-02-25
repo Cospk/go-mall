@@ -6,13 +6,15 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"log"
+	"os"
 )
 
 func InitConfig() {
 	// 使用viper加载配置信息
 	config := viper.New()
-	config.AddConfigPath("/config")
-	config.SetConfigName("application.env.yaml")
+	dir, _ := os.Getwd()
+	config.AddConfigPath(dir + "/config")
+	config.SetConfigName("application.env")
 	config.SetConfigType("yaml")
 
 	if err := config.ReadInConfig(); err != nil {
