@@ -12,11 +12,17 @@ type response struct {
 	Msg       string      `json:"msg"`
 	RequestId string      `json:"request_id"`
 	Data      interface{} `json:"data,omitempty"`
+	PageInfo  *PageInfo   `json:"page_info,omitempty"`
 }
 
 // NewResponse 构造一个响应,根据需要调用其他方法
 func NewResponse(ctx *gin.Context) *response {
 	return &response{ctx: ctx}
+}
+
+func (r *response) SetPageInfo(pageInfo *PageInfo) *response {
+	r.PageInfo = pageInfo
+	return r
 }
 
 // Success 成功并给出数据的响应

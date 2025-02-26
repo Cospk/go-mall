@@ -2,11 +2,10 @@ package config
 
 import "time"
 
-type Config struct {
-	Name     string `mapstructure:"name" json:"name"`
-	App      *appConfig
+var (
 	Database *databaseConfig
-}
+	App      *appConfig
+)
 
 type appConfig struct {
 	Name string `mapstructure:"name"`
@@ -16,12 +15,21 @@ type appConfig struct {
 		FileMaxSize      int    `mapstructure:"max_size"`
 		BackUpFileMaxAge int    `mapstructure:"max_age"`
 	}
+	PageInfo struct {
+		DefaultSize int `mapstructure:"default_size"`
+		MaxSize     int `mapstructure:"max_size"`
+	}
 }
 
 type databaseConfig struct {
+	Master DbConnectOption `mapstructure:"master"`
+	Slave  DbConnectOption `mapstructure:"slave"`
+}
+
+type DbConnectOption struct {
 	Type        string        `mapstructure:"type"`
 	DSN         string        `mapstructure:"dsn"`
-	MaxOpenConn int           `mapstructure:"maxopen""`
+	MaxOpenConn int           `mapstructure:"maxopen"`
 	MaxIdleConn int           `mapstructure:"maxidle"`
 	MaxLifeTime time.Duration `mapstructure:"maxlifetime"`
 }

@@ -17,7 +17,14 @@ func (dao *UserDao) FindUserById(id int64) *model.User {
 	return &model.User{}
 }
 
-func (dao *UserDao) FindUserByName(name string) (model.User, error) {
+func (dao *UserDao) FindUserByName(name string) (user model.User, err error) {
 	// TODO 执行sql查询数据库的数据
-	return model.User{}, nil
+	result := DB().WithContext(dao.ctx).Where("name = ?", name).First(&user)
+	if result.RowsAffected == 0 {
+		return model.User{}, result.Error
+	}
+	if result.Error != nil {
+		return model.User{}, result.Error
+	}
+	return user, nil
 }
