@@ -1,10 +1,10 @@
-package initialize
+package router
 
 import (
 	"errors"
-	"github.com/Cospk/go-mall/common/errcode"
-	logger "github.com/Cospk/go-mall/global"
-	"github.com/Cospk/go-mall/middleware"
+	"github.com/Cospk/go-mall/pkg/errcode"
+	"github.com/Cospk/go-mall/pkg/logger"
+	"github.com/Cospk/go-mall/pkg/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,9 +18,6 @@ func InitWebRouter() *gin.Engine {
 
 	// 使用中间件
 	Router.Use(middleware.TraceMiddleware(), middleware.LoggerMiddleware(), middleware.RecoveryMiddleware())
-
-	//Router.Group("api/v1")
-	// 注册路由
 
 	Router.GET("/customized-error-test", func(c *gin.Context) {
 
@@ -41,6 +38,10 @@ func InitWebRouter() *gin.Engine {
 		})
 
 	})
+
+	router := Router.Group("api/v1")
+	// 注册路由
+	RegisterUserRouter(router)
 
 	return Router
 }

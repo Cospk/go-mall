@@ -1,8 +1,8 @@
 package response
 
 import (
-	"github.com/Cospk/go-mall/common/errcode"
-	logger "github.com/Cospk/go-mall/global"
+	errcode2 "github.com/Cospk/go-mall/pkg/errcode"
+	"github.com/Cospk/go-mall/pkg/logger"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,23 +21,23 @@ func NewResponse(ctx *gin.Context) *response {
 
 // Success 成功并给出数据的响应
 func (r *response) Success(data interface{}) {
-	r.Code = errcode.Success.Code()
-	r.Msg = errcode.Success.Msg()
+	r.Code = errcode2.Success.Code()
+	r.Msg = errcode2.Success.Msg()
 	requestId := ""
 	if _, exists := r.ctx.Get("Trace-Id"); exists {
 		requestId = r.ctx.GetString("Trace-Id")
 	}
 	r.RequestId = requestId
 	r.Data = data
-	r.ctx.JSON(errcode.Success.HttpStatusCode(), r)
+	r.ctx.JSON(errcode2.Success.HttpStatusCode(), r)
 }
 
 func (r *response) SuccessOk() {
 	r.Success("")
 }
 
-// Fail 失败并给出错误的响应
-func (r *response) Fail(err *errcode.AppError) {
+// Error 失败并给出错误的响应
+func (r *response) Error(err *errcode2.AppError) {
 	r.Code = err.Code()
 	r.Msg = err.Msg()
 	requestId := ""

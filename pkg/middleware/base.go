@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"bytes"
-	logger "github.com/Cospk/go-mall/global"
-	"github.com/Cospk/go-mall/utils"
+	"github.com/Cospk/go-mall/pkg/logger"
+	"github.com/Cospk/go-mall/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net"

@@ -26,6 +26,7 @@ var (
 	ErrUserRegisterFailed      = NewError(11002, "用户注册失败")
 	ErrUserLoginFailed         = NewError(11003, "用户登录失败")
 	ErrUserUpdateFailed        = NewError(11004, "用户更新失败")
+	ErrUserPasswordError       = NewError(11005, "密码错误")
 )
 
 // 其他。。。

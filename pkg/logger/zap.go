@@ -1,11 +1,15 @@
-package initialize
+package logger
 
 import (
-	"github.com/Cospk/go-mall/global"
+	"github.com/Cospk/go-mall/pkg/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
+)
+
+var (
+	Logger *zap.Logger
 )
 
 func InitLogger() {
@@ -13,7 +17,7 @@ func InitLogger() {
 	encoder := zapcore.NewJSONEncoder(encoderConfig)
 
 	var cores []zapcore.Core
-	if global.Config.App.Env == "dev" {
+	if config.AppConfig.App.Env == "dev" {
 		// 开发环境：控制台和文件都要日志，且是debug级别
 		cores = append(
 			cores,
@@ -26,15 +30,15 @@ func InitLogger() {
 	}
 
 	core := zapcore.NewTee(cores...)
-	global.Logger = zap.New(core)
+	Logger = zap.New(core)
 }
 
 func getFileLogWriter() (writeSyncer zapcore.WriteSyncer) {
 	// 使用lumberjack 实现logger rotate
 	lumberJackLogger := &lumberjack.Logger{
-		Filename:  global.Config.App.Log.FilePath,
-		MaxSize:   global.Config.App.Log.FileMaxSize,
-		MaxAge:    global.Config.App.Log.BackUpFileMaxAge,
+		Filename:  config.AppConfig.App.Log.FilePath,
+		MaxSize:   config.AppConfig.App.Log.FileMaxSize,
+		MaxAge:    config.AppConfig.App.Log.BackUpFileMaxAge,
 		Compress:  false,
 		LocalTime: true,
 	}
