@@ -8,10 +8,6 @@ import (
 	"os"
 )
 
-var (
-	AppConfig Config
-)
-
 func InitConfig() {
 	// 使用viper加载配置信息
 	config := viper.New()
@@ -23,16 +19,35 @@ func InitConfig() {
 	if err := config.ReadInConfig(); err != nil {
 		log.Fatalf("读取配置文件失败: %v", err)
 	}
+
+	// 读取的配置信息写到结构体中
+	err := parseConfig(config)
+	if err != nil {
+		// 解析配置文件失败,应该直接panic并抛出错误，否则其他初始化基本无法进行
+		panic(err)
+	}
+
+	// 监听配置文件变化
 	config.WatchConfig()
 	config.OnConfigChange(func(e fsnotify.Event) {
 		fmt.Println("配置文件已修改:", e.Name)
-		if err := config.Unmarshal(&AppConfig); err != nil {
-			fmt.Println(err)
+		err = parseConfig(config)
+		if err != nil {
+			panic(err)
 		}
 	})
 
-	// 将配置文件内容解析到config结构体中
+}
+
+func parseConfig(config *viper.Viper) error {
 	if err := config.Unmarshal(&AppConfig); err != nil {
-		fmt.Println(err)
+		return fmt.Errorf("解析AppConfig失败: %w", err)
 	}
+	if err := config.Unmarshal(&Redis); err != nil {
+		return fmt.Errorf("解析Redis配置失败: %w", err)
+	}
+	if err := config.Unmarshal(&Database); err != nil {
+		return fmt.Errorf("解析Database配置失败: %w", err)
+	}
+	return nil
 }

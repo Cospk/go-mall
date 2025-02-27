@@ -18,7 +18,8 @@ func DBMaster() *gorm.DB {
 }
 
 func InitGorm() {
-	// TODO 初始化gorm
+	_DBMaster = initDB(config.Database.Master)
+	_DBSlave = initDB(config.Database.Slave)
 }
 
 // initDB 初始化数据库

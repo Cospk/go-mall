@@ -42,6 +42,7 @@ func InitWebRouter() *gin.Engine {
 	router := Router.Group("api/v1")
 	// 注册路由
 	RegisterUserRouter(router)
+	RegisterDemoRouter(router)
 
 	return Router
 }
