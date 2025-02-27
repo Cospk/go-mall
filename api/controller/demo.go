@@ -2,11 +2,12 @@ package controller
 
 import (
 	"errors"
-	"github.com/Cospk/go-mall/api/response"
+	"github.com/Cospk/go-mall/api/request"
 	"github.com/Cospk/go-mall/internal/logic/service"
 	"github.com/Cospk/go-mall/pkg/config"
 	"github.com/Cospk/go-mall/pkg/errcode"
 	"github.com/Cospk/go-mall/pkg/logger"
+	"github.com/Cospk/go-mall/pkg/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -16,6 +17,7 @@ import (
 // HTTP 请求 → controller → service（应用服务） → domain（领域对象/服务） → dal（数据访问）
 // 上面的流程中的应用服务和domain的分层价值：避免业务逻辑散落在 controller 或 dao 中，提升代码可维护性和可测试性
 
+// TestPing 测试接口是否正常
 func TestPing(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "pong",
@@ -23,6 +25,7 @@ func TestPing(c *gin.Context) {
 	return
 }
 
+// TestConfigRead 测试读取配置文件
 func TestConfigRead(c *gin.Context) {
 	database := config.Database
 	c.JSON(200, gin.H{
@@ -34,6 +37,7 @@ func TestConfigRead(c *gin.Context) {
 	return
 }
 
+// TestLog 测试日志
 func TestLog(c *gin.Context) {
 	logger.NewLogger(c).Info("test log", "key", "value", "val", 2)
 	c.JSON(200, gin.H{
@@ -41,12 +45,16 @@ func TestLog(c *gin.Context) {
 	})
 	return
 }
+
+// TestAccessLog 测试访问日志
 func TestAccessLog(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status": "ok",
 	})
 	return
 }
+
+// TestPanicLog 测试panic日志
 func TestPanicLog(c *gin.Context) {
 	var a map[string]string
 	a["test"] = "test"
@@ -56,6 +64,8 @@ func TestPanicLog(c *gin.Context) {
 	})
 	return
 }
+
+// TestAppError 测试应用错误
 func TestAppError(c *gin.Context) {
 	// 使用Wrap()函数包装错误
 	err := errors.New("生成一个错误")
@@ -73,6 +83,8 @@ func TestAppError(c *gin.Context) {
 		"msg":  apiErr.Msg(),
 	})
 }
+
+// TestResponseObj 测试响应
 func TestResponseObj(c *gin.Context) {
 	data := map[string]any{
 		"a": "test",
@@ -81,6 +93,8 @@ func TestResponseObj(c *gin.Context) {
 	response.NewResponse(c).Success(data)
 	return
 }
+
+// TestResponseList 测试响应列表
 func TestResponseList(c *gin.Context) {
 	pageInfo := response.GetPageInfo(c)
 
@@ -96,6 +110,8 @@ func TestResponseList(c *gin.Context) {
 	return
 
 }
+
+// TestResponseError 测试响应错误
 func TestResponseError(c *gin.Context) {
 	baseErr := errors.New("测试错误")
 	// 下面这个在正式开发时写在service层
@@ -104,6 +120,7 @@ func TestResponseError(c *gin.Context) {
 	return
 }
 
+// TestGormLogger 测试gorm日志是否会输出到项目日志中
 func TestGormLogger(c *gin.Context) {
 	svc := service.NewDemoSvc(c)
 	list, err := svc.GetDemoList()
@@ -112,4 +129,22 @@ func TestGormLogger(c *gin.Context) {
 		return
 	}
 	response.NewResponse(c).Success(list)
+}
+
+// TestCreateDemoOrder 创建demo订单
+func TestCreateDemoOrder(c *gin.Context) {
+	req := new(request.DemoOrderCreate)
+	err := c.ShouldBindJSON(req)
+	if err != nil {
+		response.NewResponse(c).Error(errcode.ErrServer.WithCause(err))
+		return
+	}
+	// TODO 验证token，这个后面集成jwt后再写
+
+	order, err2 := service.NewDemoSvc(c).CreateDemoOrder(req)
+	if err2 != nil {
+		response.NewResponse(c).Error(errcode.ErrServer.WithCause(err2))
+		return
+	}
+	response.NewResponse(c).Success(order)
 }

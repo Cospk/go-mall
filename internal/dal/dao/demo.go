@@ -3,6 +3,8 @@ package dao
 import (
 	"context"
 	"github.com/Cospk/go-mall/internal/dal/model"
+	"github.com/Cospk/go-mall/internal/logic/do"
+	"github.com/Cospk/go-mall/pkg/utils"
 )
 
 // 演示Demo，后期使用删除
@@ -19,10 +21,20 @@ func NewDemoDao(ctx context.Context) *DemoDao {
 }
 
 // GetAllDemo 获取所有demo
-func (d DemoDao) GetAllDemo() (demos []*model.Demo, err error) {
+func (d DemoDao) GetAllDemo() (demos []*model.DemoOrder, err error) {
 	err = DB().WithContext(d.ctx).Find(&demos).Error
 	if err != nil {
 		return nil, err
 	}
 	return demos, nil
+}
+
+func (d DemoDao) CreateDemoOrder(order *do.DemoOrder) (*model.DemoOrder, error) {
+	var demoOrder model.DemoOrder
+	err := utils.CopyStruct(&demoOrder, order)
+	if err != nil {
+		return nil, err
+	}
+	err = DB().WithContext(d.ctx).Create(&demoOrder).Error
+	return &demoOrder, err
 }

@@ -18,12 +18,12 @@ func GetPageInfo(c *gin.Context) *PageInfo {
 		pageNum = 1
 	}
 	pageSize, _ := strconv.Atoi(c.Query("pageSize"))
-	if pageSize <= config.App.PageInfo.DefaultSize {
-		pageSize = config.App.PageInfo.DefaultSize
+	if pageSize <= config.AppConfig.PageInfo.DefaultSize {
+		pageSize = config.AppConfig.PageInfo.DefaultSize
 	}
 
-	if pageSize > config.App.PageInfo.MaxSize {
-		pageSize = config.App.PageInfo.MaxSize
+	if pageSize > config.AppConfig.PageInfo.MaxSize {
+		pageSize = config.AppConfig.PageInfo.MaxSize
 	}
 	return &PageInfo{
 		PageNum:  pageNum,

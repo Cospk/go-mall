@@ -3,10 +3,10 @@ package controller
 import (
 	"errors"
 	"github.com/Cospk/go-mall/api/request"
-	"github.com/Cospk/go-mall/api/response"
 	"github.com/Cospk/go-mall/internal/logic/service"
 	"github.com/Cospk/go-mall/pkg/errcode"
 	"github.com/Cospk/go-mall/pkg/logger"
+	"github.com/Cospk/go-mall/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
