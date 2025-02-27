@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"encoding/binary"
 	"fmt"
 	"math/rand"
@@ -64,4 +65,18 @@ func ipv4ToUint32(ip string) (uint32, error) {
 		return 0, err
 	}
 	return binary.BigEndian.Uint32(ipAddr.IP.To4()), nil
+}
+
+// GetTraceInfoFromCtx 从ctx中获取trace信息
+func GetTraceInfoFromCtx(ctx context.Context) (traceId, spanId, pSpanId string) {
+	if ctx.Value("Trace-Id") != nil {
+		traceId = ctx.Value("Trace-Id").(string)
+	}
+	if ctx.Value("Span-Id") != nil {
+		spanId = ctx.Value("Span-Id").(string)
+	}
+	if ctx.Value("Parent-Span-Id") != nil {
+		pSpanId = ctx.Value("Parent-Span-Id").(string)
+	}
+	return
 }
