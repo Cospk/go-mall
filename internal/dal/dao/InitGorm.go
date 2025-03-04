@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"fmt"
 	"github.com/Cospk/go-mall/pkg/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -24,6 +25,7 @@ func InitGorm() {
 
 // initDB 初始化数据库
 func initDB(option config.DbConnectOption) *gorm.DB {
+	fmt.Println(option)
 	// 创建数据库连接（参数：驱动和日志记录器）
 	db, err := gorm.Open(
 		getDialector(option.Type, option.DSN),

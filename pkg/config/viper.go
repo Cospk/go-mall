@@ -40,13 +40,13 @@ func InitConfig() {
 }
 
 func parseConfig(config *viper.Viper) error {
-	if err := config.Unmarshal(&AppConfig); err != nil {
+	if err := config.UnmarshalKey("app", &AppConfig); err != nil {
 		return fmt.Errorf("解析AppConfig失败: %w", err)
 	}
-	if err := config.Unmarshal(&Redis); err != nil {
+	if err := config.UnmarshalKey("redis", &Redis); err != nil {
 		return fmt.Errorf("解析Redis配置失败: %w", err)
 	}
-	if err := config.Unmarshal(&Database); err != nil {
+	if err := config.UnmarshalKey("database", &Database); err != nil {
 		return fmt.Errorf("解析Database配置失败: %w", err)
 	}
 	return nil

@@ -2,6 +2,7 @@ package errcode
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"path"
 	"runtime"
@@ -18,6 +19,7 @@ func (e *AppError) Error() string {
 	if e == nil {
 		return ""
 	}
+
 	formatedErr := struct {
 		Code     int    `json:"code"`
 		Msg      string `json:"msg"`
@@ -53,7 +55,9 @@ func (e *AppError) UnWrap() error {
 
 // Is 与上面的UnWrap一起让 *AppError 支持 errors.Is(err, target)
 func (e *AppError) Is(target error) bool {
-	targetErr, ok := target.(*AppError)
+	var targetErr *AppError
+
+	ok := errors.As(target, &targetErr)
 	if !ok {
 		return false
 	}

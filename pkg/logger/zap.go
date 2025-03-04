@@ -17,7 +17,7 @@ func InitLogger() {
 	encoder := zapcore.NewJSONEncoder(encoderConfig)
 
 	var cores []zapcore.Core
-	if config.AppConfig.App.Env == "dev" {
+	if config.AppConfig.Env == "dev" {
 		// 开发环境：控制台和文件都要日志，且是debug级别
 		cores = append(
 			cores,
@@ -36,9 +36,9 @@ func InitLogger() {
 func getFileLogWriter() (writeSyncer zapcore.WriteSyncer) {
 	// 使用lumberjack 实现logger rotate
 	lumberJackLogger := &lumberjack.Logger{
-		Filename:  config.AppConfig.App.Log.FilePath,
-		MaxSize:   config.AppConfig.App.Log.FileMaxSize,
-		MaxAge:    config.AppConfig.App.Log.BackUpFileMaxAge,
+		Filename:  config.AppConfig.Log.FilePath,
+		MaxSize:   config.AppConfig.Log.FileMaxSize,
+		MaxAge:    config.AppConfig.Log.BackUpFileMaxAge,
 		Compress:  false,
 		LocalTime: true,
 	}

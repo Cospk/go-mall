@@ -42,8 +42,8 @@ func (s *DemoSvc) CreateDemoOrder(orderRequest *request.DemoOrderCreate) (*respo
 	domainOrder := new(do.DemoOrder)
 	err := utils.CopyStruct(&domainOrder, orderRequest)
 	if err != nil {
-		errcode.Wrap("请求数据转换领域对象失败", err)
-		return nil, err
+
+		return nil, errcode.Wrap("请求数据转换领域对象失败", err)
 	}
 	domainOrder, err = s.demoDomain.CreateDemoOrder(domainOrder)
 	if err != nil {
