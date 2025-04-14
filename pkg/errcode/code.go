@@ -21,12 +21,12 @@ var (
 
 // 用户模块错误码， 预留11000 ~ 11099间的100个错误码
 var (
-	ErrUserNotFound            = NewError(11000, "用户不存在")
-	ErrUserNameOrPasswordError = NewError(11001, "用户名或密码错误")
-	ErrUserRegisterFailed      = NewError(11002, "用户注册失败")
-	ErrUserLoginFailed         = NewError(11003, "用户登录失败")
-	ErrUserUpdateFailed        = NewError(11004, "用户更新失败")
-	ErrUserPasswordError       = NewError(11005, "密码错误")
+	ErrUserNotFound      = NewError(11000, "用户不存在")
+	ErrUserInvalid       = NewError(11001, "用户名或密码错误")
+	ErrUserNameOccupied  = NewError(11002, "用户注册失败")
+	ErrUserLoginFailed   = NewError(11003, "用户登录失败")
+	ErrUserUpdateFailed  = NewError(11004, "用户更新失败")
+	ErrUserPasswordError = NewError(11005, "密码错误")
 )
 
 // 其他。。。

@@ -7,7 +7,7 @@ import (
 	"github.com/Cospk/go-mall/pkg/config"
 	"github.com/Cospk/go-mall/pkg/errcode"
 	"github.com/Cospk/go-mall/pkg/logger"
-	"github.com/Cospk/go-mall/pkg/response"
+	"github.com/Cospk/go-mall/pkg/resp"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -90,13 +90,13 @@ func TestResponseObj(c *gin.Context) {
 		"a": "test",
 		"b": 12,
 	}
-	response.NewResponse(c).Success(data)
+	resp.NewResponse(c).Success(data)
 	return
 }
 
 // TestResponseList 测试响应列表
 func TestResponseList(c *gin.Context) {
-	pageInfo := response.GetPageInfo(c)
+	pageInfo := resp.GetPageInfo(c)
 
 	data := []struct {
 		Name string `json:"name"`
@@ -106,7 +106,7 @@ func TestResponseList(c *gin.Context) {
 		{Name: "李四", Age: 13},
 	}
 	pageInfo.Total = 2
-	response.NewResponse(c).SetPageInfo(pageInfo).Success(data)
+	resp.NewResponse(c).SetPageInfo(pageInfo).Success(data)
 	return
 
 }
@@ -116,7 +116,7 @@ func TestResponseError(c *gin.Context) {
 	baseErr := errors.New("测试错误")
 	// 下面这个在正式开发时写在service层
 	err := errcode.Wrap("encountered an error when xxx service did xxx", baseErr)
-	response.NewResponse(c).Error(errcode.ErrServer.WithCause(err))
+	resp.NewResponse(c).Error(errcode.ErrServer.WithCause(err))
 	return
 }
 
@@ -125,10 +125,10 @@ func TestGormLogger(c *gin.Context) {
 	svc := service.NewDemoSvc(c)
 	list, err := svc.GetDemoList()
 	if err != nil {
-		response.NewResponse(c).Error(errcode.ErrServer.WithCause(err))
+		resp.NewResponse(c).Error(errcode.ErrServer.WithCause(err))
 		return
 	}
-	response.NewResponse(c).Success(list)
+	resp.NewResponse(c).Success(list)
 }
 
 // TestCreateDemoOrder 创建demo订单
@@ -136,15 +136,62 @@ func TestCreateDemoOrder(c *gin.Context) {
 	req := new(request.DemoOrderCreate)
 	err := c.ShouldBindJSON(req)
 	if err != nil {
-		response.NewResponse(c).Error(errcode.ErrServer.WithCause(err))
+		resp.NewResponse(c).Error(errcode.ErrServer.WithCause(err))
 		return
 	}
 	// TODO 验证token，这个后面集成jwt后再写
 
 	order, err2 := service.NewDemoSvc(c).CreateDemoOrder(req)
 	if err2 != nil {
-		response.NewResponse(c).Error(errcode.ErrServer.WithCause(err2))
+		resp.NewResponse(c).Error(errcode.ErrServer.WithCause(err2))
 		return
 	}
-	response.NewResponse(c).Success(order)
+	resp.NewResponse(c).Success(order)
+}
+
+func TestGetToken(c *gin.Context) {
+	userSvc := service.NewUserService(c)
+	token, err := userSvc.GetToken()
+	if err != nil {
+		if errors.Is(err, errcode.ErrUserInvalid) {
+			logger.NewLogger(c).Error("invalid user is unable to generate token", err)
+			//app.NewResponse(c).Error(errcode.ErrUserInvalid.WithCause(err)) 第一版的AppError会导Error循环引用，现在已解决
+			resp.NewResponse(c).Error(errcode.ErrUserInvalid)
+		} else {
+			appErr := err.(*errcode.AppError)
+			resp.NewResponse(c).Error(appErr)
+		}
+		return
+	}
+	resp.NewResponse(c).Success(token)
+}
+
+func TestRefreshToken(c *gin.Context) {
+	refreshToken := c.Query("refresh_token")
+	if refreshToken == "" {
+		resp.NewResponse(c).Error(errcode.ErrParams)
+		return
+	}
+	userSvc := service.NewUserService(c)
+	token, err := userSvc.TokenRefresh(refreshToken)
+	if err != nil {
+		if errors.Is(err, errcode.ErrTooManyRequests) {
+			// 客户端有并发刷新token
+			resp.NewResponse(c).Error(errcode.ErrTooManyRequests)
+			return
+		} else {
+			appErr := err.(*errcode.AppError)
+			resp.NewResponse(c).Error(appErr)
+		}
+		return
+	}
+	resp.NewResponse(c).Success(token)
+}
+
+func TestVerifyToken(c *gin.Context) {
+	resp.NewResponse(c).Success(gin.H{
+		"user_id":    c.GetInt64("userId"),
+		"session_id": c.GetString("sessionId"),
+	})
+	return
 }

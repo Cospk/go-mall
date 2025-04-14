@@ -9,9 +9,10 @@ var (
 )
 
 type appConfig struct {
-	Name string `mapstructure:"name"`
-	Env  string `mapstructure:"env"`
-	Log  struct {
+	Name      string `mapstructure:"name"`
+	Env       string `mapstructure:"env"`
+	JwtSecret string `mapstructure:"jwtSecret"`
+	Log       struct {
 		FilePath         string `mapstructure:"path"`
 		FileMaxSize      int    `mapstructure:"max_size"`
 		BackUpFileMaxAge int    `mapstructure:"max_age"`

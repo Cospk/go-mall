@@ -11,6 +11,11 @@ const (
 
 // 用户模块
 
+// Token相关的Redis键名模板
 const (
-	REDIS_KEY_ACCESS_TOKEN = "GOMALL:USER:ACCESS_TOKEN_%s"
+	REDIS_KEY_ACCESS_TOKEN       = "token:access:%s"       // 访问Token的Redis键名模板
+	REDIS_KEY_REFRESH_TOKEN      = "token:refresh:%s"      // 刷新Token的Redis键名模板
+	REDIS_KEY_USER_SESSION       = "user:session:%d"       // 用户会话信息的Redis键名模板
+	REDISKEY_TOKEN_REFRESH_LOCK  = "token:refresh:lock:%s" // 刷新Token的锁
+	REDISKEY_PASSWORDRESET_TOKEN = "token:pwdreset:%s"     // 密码重置Token
 )

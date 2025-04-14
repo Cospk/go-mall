@@ -1,4 +1,4 @@
-package response
+package reply
 
 type DemoOrder struct {
 	UserId    int64  `json:"user_id"`

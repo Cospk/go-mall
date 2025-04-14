@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
+	"github.com/Cospk/go-mall/api/reply"
 	"github.com/Cospk/go-mall/api/request"
-	"github.com/Cospk/go-mall/api/response"
 	"github.com/Cospk/go-mall/internal/dal/cache"
 	"github.com/Cospk/go-mall/internal/logic/do"
 	"github.com/Cospk/go-mall/internal/logic/domain"
@@ -37,7 +37,7 @@ func (s *DemoSvc) GetDemoList() ([]*do.DemoOrder, error) {
 }
 
 // CreateDemoOrder 创建demo订单
-func (s *DemoSvc) CreateDemoOrder(orderRequest *request.DemoOrderCreate) (*response.DemoOrder, error) {
+func (s *DemoSvc) CreateDemoOrder(orderRequest *request.DemoOrderCreate) (*reply.DemoOrder, error) {
 	// 创建模型可以使用new，可以
 	domainOrder := new(do.DemoOrder)
 	err := utils.CopyStruct(&domainOrder, orderRequest)
@@ -58,7 +58,7 @@ func (s *DemoSvc) CreateDemoOrder(orderRequest *request.DemoOrderCreate) (*respo
 	logger.NewLogger(s.ctx).Info("缓存订单信息", zap.Any("cacheOrder", cacheOrder))
 
 	// 将领域对象转换为响应对象
-	responseOrder := new(response.DemoOrder)
+	responseOrder := new(reply.DemoOrder)
 	err = utils.CopyStruct(responseOrder, domainOrder)
 	if err != nil {
 		return nil, errcode.Wrap("demoOrderDo转换成响应体失败", err)

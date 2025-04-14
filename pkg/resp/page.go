@@ -1,4 +1,4 @@
-package response
+package resp
 
 import (
 	"github.com/Cospk/go-mall/pkg/config"

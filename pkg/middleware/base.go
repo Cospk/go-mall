@@ -83,7 +83,7 @@ func writeAccessLog(c *gin.Context, accessType string, cost time.Duration, body 
 		"path", req.URL.Path,
 		"query", req.URL.RawQuery,
 		"body", string(body),
-		"response", response,
+		"reply", response,
 		"time(ms)", int64(cost/time.Millisecond),
 	)
 }

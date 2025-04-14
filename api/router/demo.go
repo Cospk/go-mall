@@ -28,5 +28,12 @@ func RegisterDemoRouter(router *gin.RouterGroup) {
 		DemoRouter.GET("/response-error", controller.TestResponseError)
 		// 测试GORM Logger
 		DemoRouter.GET("/gorm-logger", controller.TestGormLogger)
+
+		// 测试Token生成
+		DemoRouter.GET("/get-token", controller.TestGetToken)
+		// 测试Token验证
+		DemoRouter.GET("/verify-token", controller.TestVerifyToken)
+		// 测试Token刷新
+		DemoRouter.GET("/refresh-token", controller.TestRefreshToken)
 	}
 }
