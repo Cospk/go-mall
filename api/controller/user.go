@@ -110,7 +110,7 @@ func PasswordResetApply(c *gin.Context) {
 		resp.NewResponse(c).Error(errcode.ErrParams.WithCause(err))
 		return
 	}
-	userSvc := service.NewUserAppSvc(c)
+	userSvc := service.NewUserService(c)
 	reply, err := userSvc.PasswordResetApply(request)
 	if err != nil {
 		if errors.Is(err, errcode.ErrUserNotRight) {
@@ -136,7 +136,7 @@ func PasswordReset(c *gin.Context) {
 		resp.NewResponse(c).Error(errcode.ErrParams)
 		return
 	}
-	userSvc := service.NewUserAppSvc(c)
+	userSvc := service.NewUserService(c)
 	err := userSvc.PasswordReset(request)
 	if err != nil {
 		if errors.Is(err, errcode.ErrParams) {
@@ -155,7 +155,7 @@ func PasswordReset(c *gin.Context) {
 // UserInfo 个人信息查询
 func UserInfo(c *gin.Context) {
 	userId := c.GetInt64("userId")
-	userSvc := service.NewUserAppSvc(c)
+	userSvc := service.NewUserService(c)
 	userInfoReply := userSvc.UserInfo(userId)
 	if userInfoReply == nil {
 		resp.NewResponse(c).Error(errcode.ErrParams)
@@ -171,7 +171,7 @@ func UpdateUserInfo(c *gin.Context) {
 		resp.NewResponse(c).Error(errcode.ErrParams.WithCause(err))
 		return
 	}
-	userSvc := service.NewUserAppSvc(c)
+	userSvc := service.NewUserService(c)
 	err := userSvc.UserInfoUpdate(request, c.GetInt64("userId"))
 	if err != nil {
 		resp.NewResponse(c).Error(errcode.ErrServer.WithCause(err))

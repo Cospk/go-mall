@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"errors"
 	"github.com/Cospk/go-mall/internal/dal/model"
 	"github.com/Cospk/go-mall/internal/logic/do"
 	"github.com/Cospk/go-mall/pkg/errcode"
@@ -37,7 +38,7 @@ func (dao *UserDao) FindUserByName(name string) (user model.User, err error) {
 func (dao *UserDao) FindUserByLoginName(loginName string) (*model.User, error) {
 	user := new(model.User)
 	err := DB().WithContext(dao.ctx).Where(model.User{LoginName: loginName}).First(&user).Error
-	if err != nil && !errcode.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 	return user, nil

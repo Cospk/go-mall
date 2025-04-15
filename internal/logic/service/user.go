@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/Cospk/go-mall/api/reply"
 	"github.com/Cospk/go-mall/api/request"
+	"github.com/Cospk/go-mall/internal/dal/cache"
 	"github.com/Cospk/go-mall/internal/logic/do"
 	"github.com/Cospk/go-mall/internal/logic/domain"
 	"github.com/Cospk/go-mall/pkg/errcode"
@@ -22,6 +23,24 @@ func NewUserService(ctx *gin.Context) *UserService {
 		ctx:        ctx,
 		userDomain: domain.NewUserDomain(ctx),
 	}
+}
+
+func (svc *UserService) VerifyAccessToken(accessToken string) (*do.TokenVerify, error) {
+	tokenInfo, err := cache.GetAccessToken(svc.ctx, accessToken)
+	if err != nil {
+		logger.NewLogger(svc.ctx).Error("GetAccessTokenErr", "err", err)
+		return nil, err
+	}
+	tokenVerify := new(do.TokenVerify)
+	if tokenInfo != nil && tokenInfo.UserId != 0 {
+		tokenVerify.UserId = tokenInfo.UserId
+		tokenVerify.SessionId = tokenInfo.SessionId
+		tokenVerify.Platform = tokenInfo.Platform
+		tokenVerify.Approved = true
+	} else {
+		tokenVerify.Approved = false
+	}
+	return tokenVerify, nil
 }
 
 func (svc *UserService) GetToken() (*reply.TokenReply, error) {

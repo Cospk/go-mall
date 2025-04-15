@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"github.com/Cospk/go-mall/api/router"

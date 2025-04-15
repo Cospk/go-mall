@@ -69,7 +69,7 @@ func GetUserPlatformSession(ctx context.Context, id int64, platform string) (*do
 		return nil, err
 	}
 	// key 不存在
-	if errcode.Is(err, redis.Nil) {
+	if errors.Is(err, redis.Nil) {
 		return nil, nil
 	}
 	session := new(do.SessionInfo)
@@ -119,7 +119,22 @@ func GetRefreshToken(ctx context.Context, refreshToken string) (*do.SessionInfo,
 		return nil, err
 	}
 	session := new(do.SessionInfo)
-	if errcode.Is(err, redis.Nil) {
+	if errors.Is(err, redis.Nil) {
+		return session, nil
+	}
+	json.Unmarshal([]byte(result), &session)
+
+	return session, nil
+}
+
+func GetAccessToken(ctx context.Context, accessToken string) (*do.SessionInfo, error) {
+	redisKey := fmt.Sprintf(enum.REDIS_KEY_ACCESS_TOKEN, accessToken)
+	result, err := Redis().Get(ctx, redisKey).Result()
+	if err != nil && err != redis.Nil {
+		return nil, err
+	}
+	session := new(do.SessionInfo)
+	if errors.Is(err, redis.Nil) {
 		return session, nil
 	}
 	json.Unmarshal([]byte(result), &session)

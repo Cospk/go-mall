@@ -1,58 +1,38 @@
 package middleware
 
 import (
-	"github.com/Cospk/go-mall/internal/dal/cache"
+	"github.com/Cospk/go-mall/internal/logic/service"
 	"github.com/Cospk/go-mall/pkg/errcode"
+	"github.com/Cospk/go-mall/pkg/resp"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm/logger"
 	"net/http"
-	"strings"
 )
 
 // AuthMiddleware 认证中间件
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 获取请求头中的Token
-		accessToken := c.GetHeader("Authorization")
-		if accessToken == "" {
-			// 尝试从Cookie中获取
-			accessToken, _ = c.Cookie("token")
-		}
+		token := c.Request.Header.Get("Authorization")
 
-		if accessToken == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"code": errcode.CodeUnauthorized, "msg": "未授权访问"})
+		if token == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"code": 403, "msg": "未授权访问"})
 			return
 		}
 
-		// 去掉可能的Bearer前缀
-		accessToken = strings.TrimPrefix(accessToken, "Bearer ")
-
-		// 首先尝试通过JWT直接验证Token
-		userId, jwtErr := util.ParseUserIdFromToken(accessToken)
-
-		// 如果JWT验证成功，再检查Redis中是否存在该Token（用于支持主动失效）
-		if jwtErr == nil && userId > 0 {
-			session, err := cache.GetAccessToken(c, accessToken)
-			if err != nil {
-				// Redis错误但JWT验证通过，仍然允许访问
-				logger.New(c).Warn("Redis error but JWT valid", "err", err)
-				// 设置用户ID到上下文
-				c.Set("userId", userId)
-				c.Next()
-				return
-			}
-
-			if session.UserId > 0 {
-				// Token有效，设置用户ID到上下文
-				c.Set("userId", session.UserId)
-				c.Set("platform", session.Platform)
-				c.Set("sessionId", session.SessionId)
-				c.Next()
-				return
-			}
+		tokenVerify, err := service.NewUserService(c).VerifyAccessToken(token)
+		if err != nil { // 验证Token时服务出错
+			resp.NewResponse(c).Error(errcode.ErrServer)
+			c.Abort()
+			return
 		}
-
-		// Token无效
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"code": errcode.CodeUnauthorized, "msg": "未授权访问"})
+		if !tokenVerify.Approved { // Token未通过验证
+			resp.NewResponse(c).Error(errcode.ErrToken)
+			c.Abort()
+			return
+		}
+		c.Set("userId", tokenVerify.UserId)
+		c.Set("sessionId", tokenVerify.SessionId)
+		c.Set("platform", tokenVerify.Platform)
+		c.Next()
 	}
 }
