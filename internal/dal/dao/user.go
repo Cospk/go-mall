@@ -17,8 +17,8 @@ func NewUserDao(ctx context.Context) *UserDao {
 	return &UserDao{ctx: ctx}
 }
 
-func (dao *UserDao) FindUserById(id int64) *model.User {
-	return &model.User{}
+func (dao *UserDao) FindUserById(id int64) (*model.User, error) {
+	return &model.User{}, nil
 }
 
 func (dao *UserDao) FindUserByName(name string) (user model.User, err error) {
@@ -58,4 +58,9 @@ func (dao *UserDao) CreateUser(info *do.UserBaseInfo, userPasswordHash string) (
 	}
 	return userModel, nil
 
+}
+
+func (dao *UserDao) UpdateUser(user *model.User) error {
+	err := DBMaster().WithContext(dao.ctx).Model(user).Updates(user).Error
+	return err
 }

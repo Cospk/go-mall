@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/Cospk/go-mall/api/reply"
 	"github.com/Cospk/go-mall/api/request"
 	"github.com/Cospk/go-mall/internal/logic/do"
@@ -53,7 +54,7 @@ func (svc *UserService) UserRegister(userRegisterReq *request.UserRegister) erro
 
 	// 领域服务注册用户
 	_, err := svc.userDomain.RegisterUser(userInfo, userRegisterReq.Password)
-	if errcode.Is(err, errcode.ErrUserNameOccupied) {
+	if errors.Is(err, errcode.ErrUserNameOccupied) {
 		return err
 	}
 
@@ -81,4 +82,40 @@ func (svc *UserService) UserLogin(userLoginReq *request.UserLogin) (*reply.Token
 func (svc *UserService) UserLogout(userId int64, platform string) error {
 	err := svc.userDomain.LogoutUser(userId, platform)
 	return err
+}
+
+// PasswordResetApply 申请重置密码
+func (svc *UserService) PasswordResetApply(request *request.PasswordResetApply) (*reply.PasswordResetApply, error) {
+	passwordResetToken, code, err := svc.userDomain.ApplyForPasswordReset(request.LoginName)
+	// TODO 把验证码通过邮件/短信发送给用户, 练习中就不实际去发送了, 记一条日志代替。
+	logger.NewLogger(svc.ctx).Info("PasswordResetApply", "token", passwordResetToken, "code", code)
+	if err != nil {
+		return nil, err
+	}
+	reply := new(reply.PasswordResetApply)
+	reply.PasswordResetToken = passwordResetToken
+	return reply, nil
+}
+
+// PasswordReset 重置密码
+func (svc *UserService) PasswordReset(request *request.PasswordReset) error {
+	return svc.userDomain.ResetPassword(request.Token, request.Code, request.Password)
+}
+
+// UserInfo 用户信息
+func (svc *UserService) UserInfo(userId int64) *reply.UserInfoReply {
+	userInfo := svc.userDomain.GetUserBaseInfo(userId)
+	if userInfo == nil || userInfo.ID == 0 {
+		return nil
+	}
+	infoReply := new(reply.UserInfoReply)
+	_ = utils.CopyStruct(infoReply, userInfo)
+	// 登录名是敏感信息, 做混淆处理
+	infoReply.LoginName = utils.MaskLoginName(infoReply.LoginName)
+	return infoReply
+}
+
+// UserInfoUpdate 更新用户昵称、签名等信息
+func (svc *UserService) UserInfoUpdate(request *request.UserInfoUpdate, userId int64) error {
+	return svc.userDomain.UpdateUserBaseInfo(request, userId)
 }

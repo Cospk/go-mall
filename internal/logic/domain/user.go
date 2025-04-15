@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"github.com/Cospk/go-mall/api/request"
 	"github.com/Cospk/go-mall/internal/dal/cache"
 	"github.com/Cospk/go-mall/internal/dal/dao"
 	"github.com/Cospk/go-mall/internal/logic/do"
@@ -138,20 +139,6 @@ func (domain *UserDomain) RefreshToken(refreshToken string) (*do.TokenInfo, erro
 	return tokenInfo, nil
 }
 
-func (domain *UserDomain) GetUserBaseInfo(userId int64) *do.UserBaseInfo {
-	return &do.UserBaseInfo{
-		ID:        12345678,
-		Nickname:  "Kevin",
-		LoginName: "kev@gomall.com",
-		Verified:  1,
-		Avatar:    "",
-		Slogan:    "",
-		IsBlocked: 1,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-}
-
 func (domain *UserDomain) RegisterUser(info *do.UserBaseInfo, password string) (*do.UserBaseInfo, error) {
 	existedUser, err := domain.userDao.FindUserByLoginName(info.LoginName)
 	if err != nil {
@@ -204,5 +191,103 @@ func (domain *UserDomain) LogoutUser(userId int64, platform string) error {
 		return errcode.Wrap("UserDomainSvcLogoutUserError", err)
 	}
 
+	return nil
+}
+
+func (domain *UserDomain) GetUserBaseInfo(userId int64) *do.UserBaseInfo {
+	user, err := domain.userDao.FindUserById(userId)
+	log := logger.NewLogger(domain.ctx)
+	if err != nil {
+		log.Error("GetUserBaseInfoError", "err", err)
+		return nil
+	}
+	userBaseInfo := new(do.UserBaseInfo)
+	_ = utils.CopyStruct(userBaseInfo, user)
+	return userBaseInfo
+}
+
+// UpdateUserBaseInfo 更新用户的基本信息
+func (domain *UserDomain) UpdateUserBaseInfo(request *request.UserInfoUpdate, userId int64) error {
+	user, err := domain.userDao.FindUserById(userId)
+	if err != nil {
+		return err
+	}
+
+	user.Avatar = request.Avatar
+	user.Nickname = request.Nickname
+	user.Slogan = request.Slogan
+	err = domain.userDao.UpdateUser(user)
+	return err
+}
+
+// ApplyForPasswordReset 申请重置密码
+// @return passwordResetToken 重置密码时需要携带的Token信息，用于安全验证
+// @return err 错误返回
+func (domain *UserDomain) ApplyForPasswordReset(loginName string) (passwordResetToken, code string, err error) {
+	user, err := domain.userDao.FindUserByLoginName(loginName)
+	if err != nil {
+		err = errcode.Wrap("ApplyForPasswordResetError", err)
+		return
+	}
+	if user.ID == 0 {
+		err = errcode.ErrUserNotRight
+		return
+	}
+	token, err := auth.GenPasswordResetToken(user.ID)
+	code = utils.RandNumStr(6)
+	if err != nil {
+		err = errcode.Wrap("ApplyForPasswordResetError", err)
+		return
+	}
+	// 把token和验证码存入缓存
+	err = cache.SetPasswordResetToken(domain.ctx, user.ID, token, code)
+	if err != nil {
+		err = errcode.Wrap("ApplyForPasswordResetError", err)
+		return
+	}
+	passwordResetToken = token
+	return
+}
+
+func (domain *UserDomain) ResetPassword(resetToken, resetCode, newPlainPassword string) error {
+	log := logger.NewLogger(domain.ctx)
+	userId, code, err := cache.GetPasswordResetToken(domain.ctx, resetToken)
+	if err != nil {
+		log.Error("ResetPasswordError", "err", err)
+		err = errcode.Wrap("ResetPasswordError", err)
+		return err
+	}
+	// 确认Token正确且code码正确
+	if userId == 0 || resetCode != code {
+		return errcode.ErrParams
+	}
+	user, err := domain.userDao.FindUserById(userId)
+	if err != nil {
+		return errcode.Wrap("ResetPasswordError", err)
+	}
+	// 找不到用户或者用户为封禁状态
+	if user.ID == 0 || user.IsBlocked == enum.UserBlockStateBlocked {
+		return errcode.ErrUserInvalid
+	}
+	newPass, err := utils.BcryptPassword(newPlainPassword)
+	if err != nil {
+		return errcode.Wrap("ResetPasswordError", err)
+	}
+	// 更新密码
+	user.Password = newPass
+	err = domain.userDao.UpdateUser(user)
+	if err != nil {
+		return errcode.Wrap("ResetPasswordError", err)
+	}
+	// 删掉用户所有已存的Session
+	err = cache.DelUserSessions(domain.ctx, userId)
+	if err != nil {
+		log.Error("ResetPasswordError", "err", err)
+	}
+	err = cache.DelPasswordResetToken(domain.ctx, resetToken)
+	if err != nil {
+		// 删缓存失败, 不给客户端错误消息, 记日志发告警
+		log.Error("ResetPasswordError", "err", err)
+	}
 	return nil
 }

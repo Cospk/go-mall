@@ -18,12 +18,16 @@ func RegisterUserRouter(router *gin.RouterGroup) {
 		UserRouter.POST("refreshToken", controller.RefreshUserToken)
 
 		// 重置密码
+		UserRouter.POST("password/apply-reset", controller.PasswordResetApply)
+
+		// 重置密码
+		UserRouter.POST("password/reset", controller.PasswordReset)
 
 		// 获取用户信息
-
-		// 修改用户信息
+		UserRouter.GET("info", controller.GetUserInfo)
 
 		// 更新用户信息
+		UserRouter.PATCH("info", controller.UpdateUserInfo)
 
 	}
 }

@@ -102,3 +102,81 @@ func RefreshUserToken(c *gin.Context) {
 	}
 	resp.NewResponse(c).Success(token)
 }
+
+// PasswordResetApply 申请重置密码
+func PasswordResetApply(c *gin.Context) {
+	request := new(request.PasswordResetApply)
+	if err := c.ShouldBindJSON(request); err != nil {
+		resp.NewResponse(c).Error(errcode.ErrParams.WithCause(err))
+		return
+	}
+	userSvc := service.NewUserAppSvc(c)
+	reply, err := userSvc.PasswordResetApply(request)
+	if err != nil {
+		if errors.Is(err, errcode.ErrUserNotRight) {
+			resp.NewResponse(c).Error(errcode.ErrUserNotRight)
+		} else {
+			resp.NewResponse(c).Error(errcode.ErrServer.WithCause(err))
+		}
+		return
+	}
+
+	resp.NewResponse(c).Success(reply)
+}
+
+func PasswordReset(c *gin.Context) {
+	request := new(request.PasswordReset)
+	if err := c.ShouldBindJSON(request); err != nil {
+		resp.NewResponse(c).Error(errcode.ErrParams.WithCause(err))
+		return
+	}
+	if !utils.PasswordComplexityVerify(request.Password) {
+		// Validator验证通过后再应用 密码复杂度这样的特殊验证
+		logger.NewLogger(c).Warn("RegisterUserError", "err", "密码复杂度不满足", "password", request.Password)
+		resp.NewResponse(c).Error(errcode.ErrParams)
+		return
+	}
+	userSvc := service.NewUserAppSvc(c)
+	err := userSvc.PasswordReset(request)
+	if err != nil {
+		if errors.Is(err, errcode.ErrParams) {
+			resp.NewResponse(c).Error(errcode.ErrParams)
+		} else if errors.Is(err, errcode.ErrUserInvalid) {
+			resp.NewResponse(c).Error(errcode.ErrUserInvalid)
+		} else {
+			resp.NewResponse(c).Error(errcode.ErrServer)
+		}
+		return
+	}
+
+	resp.NewResponse(c).SuccessOk()
+}
+
+// UserInfo 个人信息查询
+func UserInfo(c *gin.Context) {
+	userId := c.GetInt64("userId")
+	userSvc := service.NewUserAppSvc(c)
+	userInfoReply := userSvc.UserInfo(userId)
+	if userInfoReply == nil {
+		resp.NewResponse(c).Error(errcode.ErrParams)
+		return
+	}
+	resp.NewResponse(c).Success(userInfoReply)
+}
+
+// UpdateUserInfo 个人信息更新
+func UpdateUserInfo(c *gin.Context) {
+	request := new(request.UserInfoUpdate)
+	if err := c.ShouldBindJSON(request); err != nil {
+		resp.NewResponse(c).Error(errcode.ErrParams.WithCause(err))
+		return
+	}
+	userSvc := service.NewUserAppSvc(c)
+	err := userSvc.UserInfoUpdate(request, c.GetInt64("userId"))
+	if err != nil {
+		resp.NewResponse(c).Error(errcode.ErrServer.WithCause(err))
+		return
+	}
+
+	resp.NewResponse(c).SuccessOk()
+}
