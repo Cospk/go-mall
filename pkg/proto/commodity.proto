@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package commodity;
+
+
+
+service StreamGreeter {
+
+  // GetCategoryHierarchy 获取按层级划分后的所有分类
+  rpc GetCategoryHierarchy(GetCategoryHierarchyRequest) returns (GetCategoryHierarchyResponse);
+
+  // CommoditySearch 搜索商品
+  rpc CommoditySearch(CommoditySearchRequest) returns (CommoditySearchResponse);
+
+  // CommodityInfoById 商品详情
+  rpc CommodityInfoById(CommodityInfoByIdRequest) returns (CommodityInfoByIdResponse);
+
+  // CommoditiesInCategory 分类商品列表
+  rpc CommoditiesInCategory(CommoditiesInCategoryRequest) returns (CommoditiesInCategoryResponse);
+
+}

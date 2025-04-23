@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/Cospk/go-mall/api/router"
-	"github.com/Cospk/go-mall/internal/dal/cache"
-	"github.com/Cospk/go-mall/internal/dal/dao"
+	"github.com/Cospk/go-mall/api/demo/router"
+	"github.com/Cospk/go-mall/internal/demo/dal/cache"
+	"github.com/Cospk/go-mall/internal/demo/dal/dao"
 	"github.com/Cospk/go-mall/pkg/config"
 	"github.com/Cospk/go-mall/pkg/logger"
 	"go.uber.org/zap"

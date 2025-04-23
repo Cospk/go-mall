@@ -3,7 +3,7 @@ package external
 import (
 	"context"
 	"encoding/json"
-	"github.com/Cospk/go-mall/api/request"
+	"github.com/Cospk/go-mall/api/demo/request"
 	"github.com/Cospk/go-mall/pkg/logger"
 	"github.com/Cospk/go-mall/pkg/utils/httptool"
 )

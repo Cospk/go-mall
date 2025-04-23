@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/Cospk/go-mall/internal/logic/service"
+	"github.com/Cospk/go-mall/internal/demo/logic/service"
 	"github.com/Cospk/go-mall/pkg/errcode"
 	"github.com/Cospk/go-mall/pkg/resp"
 	"github.com/gin-gonic/gin"
