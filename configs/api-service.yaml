@@ -1,0 +1,82 @@
+app:
+  name: "api-gateway"
+  version: "1.0.0"
+  mode: "dev"
+  port: 8080
+  host: "0.0.0.0"
+  log_level: "info"
+  log_path: "./logs"
+  enable_pprof: false
+
+service_discovery:
+  type: "etcd"
+  endpoints: ["localhost:2379"]
+  namespace: "go-mall"
+  username: ""
+  password: ""
+  ttl: 15
+
+services:
+  user:
+    address: "localhost:9001"
+    timeout: 3000
+    max_retries: 3
+    pool_size: 10
+    health_check: true
+  product:
+    address: "localhost:9002"
+    timeout: 3000
+    max_retries: 3
+    pool_size: 10
+    health_check: true
+  order:
+    address: "localhost:9003"
+    timeout: 3000
+    max_retries: 3
+    pool_size: 10
+    health_check: true
+
+auth:
+  jwt:
+    secret: "your-secret-key"
+    issuer: "go-mall"
+    expiration: 86400 # 24小时
+  oauth:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+    redirect_url: ""
+  white_list: ["/api/v1/user/login", "/api/v1/user/register", "/health"]
+
+rate_limit:
+  enabled: true
+  type: "token_bucket"
+  rate: 100
+  burst: 200
+  redis_key: "rate_limit:"
+  ip_white_list: ["127.0.0.1"]
+
+cache:
+  type: "redis"
+  expiration: 3600
+  cleanup_interval: 600
+  max_size: 10000
+
+cors:
+  enabled: true
+  allow_origins: ["*"]
+  allow_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+  allow_headers: ["Content-Type", "Authorization"]
+  expose_headers: ["Content-Length"]
+  allow_credentials: true
+  max_age: 86400
+
+monitor:
+  prometheus:
+    enabled: true
+    path: "/metrics"
+  tracing:
+    enabled: true
+    type: "jaeger"
+    endpoint: "http://localhost:14268/api/traces"
+    sample_rate: 0.1

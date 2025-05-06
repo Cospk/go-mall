@@ -1,0 +1,260 @@
+syntax = "proto3"; // 采用 protoBuffer V3 语法编写
+
+package user;  //等同于go语言package的功能(和go语言的package功能一样，但是要注意的是，go语言的package是用来区分不同的包的，而proto文件的package是用来区分不同的服务的)
+
+option go_package = "./gen/go/user;user";	//分号前面是生成的go文件所在有路径，.是--go_out指定的路径，分号后面是生成的go文件package名称
+
+// proto文件转go文件：
+// protoc --go_out=./api/rpc --go-grpc_out=./api/rpc --proto_path=./api/rpc  user.proto
+//   --go_out指定student_service.pb.go的输出路径，
+//   --go-grpc_out指定student_service_grpc.pb.go的输出路径，注意要再加上go_package分号前面的部分。
+//   --proto_path指定proto文件所在的路径。
+// 在windows上路径里不要包含中文，如果路径里包含空格则路径要放在""中。
+// go mod tidy 是为了自动引入所需依赖。
+
+
+
+service StreamGreeter {  //等同于go语言的接口，接口里可以定义多个函数
+
+  // 注册用户
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+
+  // 登录
+  rpc LoginUser(LoginRequest) returns (LoginResponse);
+
+  // 登出
+  rpc LogoutUser(LogoutRequest) returns (LogoutResponse);
+
+  // 获取用户信息
+  rpc GetUserInfo(GetUserInfoRequest) returns (GetUserInfoResponse) ;
+
+  // 刷新用户token
+  rpc RefreshUserToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+
+  // 申请重置登录密码  (申请修改然后发送邮件，然后验证后修改密码)
+  rpc PasswordResetApply(PasswordResetApplyRequest) returns (PasswordResetApplyResponse);
+
+  // 重置登录密码
+  rpc PasswordReset(PasswordResetRequest) returns (PasswordResetResponse);
+
+  // 获取用户信息-ID
+  rpc GetUserInfoById(GetUserInfoByIdRequest) returns (GetUserInfoResponse);
+
+  // 更新用户信息
+  rpc UpdateUserInfo(UpdateUserInfoRequest) returns (UpdateUserInfoResponse);
+
+
+  // 添加用户收货地址
+  rpc AddUserAddressInfo(AddUserAddressInfoRequest) returns (AddUserAddressInfoResponse);
+
+  // 获取用户收货地址列表
+  rpc GetUserAddressList(GetUserAddressListRequest) returns (GetUserAddressListResponse);
+
+  // 获取单个收货地址信息
+  rpc GetUserAddressInfo(GetUserAddressInfoRequest) returns (UserAddressInfo);
+
+  // 更新用户收货地址信息
+  rpc UpdateUserAddressInfo(UpdateUserAddressInfoRequest) returns (UpdateUserAddressInfoResponse);
+
+  // 删除用户收货地址
+  rpc DeleteUserAddressInfo(DeleteUserAddressInfoRequest) returns (DeleteUserAddressInfoResponse);
+
+//  // 用户账户充值
+//  rpc UserAccountCharge(UserAccountChargeRequest) returns (UserAccountChargeResponse);
+//
+//  // 检查用户状态
+//  rpc CheckUserState(CheckUserStateRequest) returns (CheckUserStateResponse);
+//
+//  // 获取用户accountId
+//  rpc GetUserAccountId(GetUserAccountIdRequest) returns (GetUserAccountIdResponse);
+//
+//  // 列表所有用户
+//  rpc ListUserInfo(ListUserInfoRequest) returns (ListUserInfoResponse);
+//
+//  // 搜索用户
+//  rpc SearchUserInfo(SearchUserInfoRequest) returns (SearchUserInfoResponse);
+
+  // 负载均衡测试
+//  rpc LoadBalanceTest(LoadBalanceTestRequest) returns (LoadBalanceTestResponse);
+}
+
+
+message RegisterRequest { // 等同于Go的结构体
+  string login_name = 1; // 变量名的驼峰形式就是go里的成员变量名。后面的数字来用来作pb序列化，每个成员变量对应的数字需要唯一
+  string password = 2;
+  string password_confirm = 3;
+  string nick_name = 4;
+  string Slogan = 5;
+  string avatar = 6;
+  // map <string, string> extra_info = 7; //map类型
+  // repeated string hobbies = 8; //repeated 表示list切片
+  // int64 created_at = 9; // 在proto文件中是蛇形命名法，当转为Go代码就是驼峰命名形式了
+}
+
+message RegisterResponse {
+  int64 id = 1;
+  string message = 2;
+}
+
+message LoginRequest {
+  string loginName = 1;
+  string password = 2;
+  string platform = 3;
+}
+
+message LoginResponse {
+  int64 id = 1;
+  string token = 2;
+  string message = 3;
+}
+
+message LogoutRequest {
+  int64 id = 1;
+  string platform = 2;
+}
+
+message LogoutResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  int64  duration = 3;
+  string srv_create_time = 4;
+}
+
+message PasswordResetApplyRequest {
+  string login_name = 1;
+}
+
+message PasswordResetApplyResponse {
+  bool success = 1;
+  string password_reset_token = 2;
+}
+
+message PasswordResetRequest {
+  string token = 1;
+  string password = 2;
+  string confirm_password = 3;
+  string Code = 4;
+}
+
+message PasswordResetResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetUserInfoByIdRequest {
+  int64 id = 1;
+}
+
+
+
+message GetUserInfoRequest {
+  int64 id = 1;
+  string nick_name = 2;
+  string login_name = 3;
+  string verified = 4;
+  string avatar = 5;
+  string Slogan = 6;
+  int32 is_blocked = 7;
+  string created_at = 8;
+}
+
+message GetUserInfoResponse {
+  int64 id = 1;
+  string nick_name = 2;
+  string login_name = 3;
+  int64 verified = 4;
+  string avatar = 5;
+  string slogan = 6;
+  int32 is_blocked = 7;
+  string created_at = 8;
+}
+
+message UpdateUserInfoRequest {
+  int64 id = 1;
+  string nick_name = 2;
+  string slogan = 3;
+  string avatar = 4;
+}
+
+message UpdateUserInfoResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message AddUserAddressInfoRequest {
+  string  user_name = 1;
+  string user_phone = 2;
+  int32 default = 3;
+  string province_name = 4;
+  string city_name = 5;
+  string region_name = 6;
+  string detail_addr = 7;
+}
+
+message AddUserAddressInfoResponse {
+  int64 address_id = 1;
+  string message = 2;
+}
+
+message GetUserAddressListRequest {
+  int64 id = 1;
+}
+
+message GetUserAddressListResponse {
+  repeated UserAddressInfo address_list = 1;
+}
+
+message UserAddressInfo {
+  int64 id = 1;
+  string user_name = 2;
+  string user_phone = 3;
+  string masked_user_name = 4;
+  string masked_user_phone = 5;
+  int32 default = 6;
+  string province_name = 7;
+  string city_name = 8;
+  string region_name = 9;
+  string detail_address = 10;
+  string created_at = 11;
+}
+
+message GetUserAddressInfoRequest {
+  int64 address_id = 1;
+}
+
+
+
+message UpdateUserAddressInfoRequest {
+  int64 address_id = 1;
+  string user_name = 2;
+  string user_phone = 3;
+  int32 default = 4;
+  string province_name = 5;
+  string city_name = 6;
+  string region_name = 7;
+  string detail_address = 8;
+}
+
+message UpdateUserAddressInfoResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message DeleteUserAddressInfoRequest {
+  int64 address_id = 1;
+}
+
+message DeleteUserAddressInfoResponse {
+  bool success = 1;
+  string message = 2;
+}
+

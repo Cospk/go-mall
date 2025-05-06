@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package commodity;
+
+option go_package = "./gen/go/commodity;commodity";
+
+// protoc --go_out=./api/rpc --go-grpc_out=./api/rpc --proto_path=./api/rpc  commodity.proto
+
+service StreamGreeter {
+
+  // 获取分类层级结构
+  rpc GetCategoryHierarchy(EmptyRequest) returns (CategoryHierarchyReply) {}
+
+  // 根据父ID获取分类列表
+  rpc GetCategoriesWithParentId(ParentIdRequest) returns (CategoriesReply) {}
+
+  // 获取分类下的商品列表
+  rpc CommoditiesInCategory(CategoryCommoditiesRequest) returns (CommoditiesReply) {}
+
+  // 商品搜索
+  rpc CommoditySearch(SearchRequest) returns (CommoditiesReply) {}
+
+  // 获取商品详情
+  rpc CommodityInfo(CommodityIdRequest) returns (CommodityDetailReply) {}
+
+
+}
+
+// 请求和响应消息定义
+message EmptyRequest {}
+
+message ParentIdRequest {
+  int64 parent_id = 1;
+}
+
+message CategoryCommoditiesRequest {
+  int64 category_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  int32 total_rows = 4;
+}
+
+message SearchRequest {
+  string keyword = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message CommodityIdRequest {
+  int64 commodity_id = 1;
+}
+
+message CategoryHierarchyReply {
+  repeated CategoryNode categories = 1;
+}
+
+message CategoryNode {
+  int64 id = 1;
+  int32 level = 2;
+  int64 parent_id = 3;
+  string name = 4;
+  int32 Rank = 5;
+  repeated CategoryNode subCategoryNode = 6;
+}
+
+message CategoriesReply {
+  repeated Category categories = 1;
+}
+
+message Category {
+  int64 id = 1;
+  int32 level = 2;
+  int64 parent_id = 3;
+  string name = 4;
+  string icon_img = 5;
+  int32 Rank = 6;
+}
+
+message CommoditiesReply {
+  repeated CommodityBrief commodities = 1;
+}
+
+message CommodityBrief {
+  int64 id = 1;
+  string name = 2;
+  string intro = 3;
+  int64 category_id = 4;
+  string cover_img = 5;
+  int32 original_price = 6;
+  int32 selling_price = 7;
+  string tag = 8;
+  int32 sell_status = 9;
+  string created_at = 10;
+}
+
+message CommodityDetailReply {
+  int64 id = 1;
+  string name = 2;
+  string intro = 3;
+  int64 category_id = 4;
+  string cover_img = 5;
+  string images  = 6;
+  string detail_content = 7;
+  int32 original_price = 8;
+  int32 selling_price = 9;
+  int32 stock_num = 10;
+  string tag = 11;
+  int32 sell_status = 12;
+  string created_at = 13;
+}
+
+

@@ -103,7 +103,7 @@ lo：Go 语言实用工具库
 
 应用层里面是应用服务，主要负责用例流的任务协调，每个用例流对应一个服务方法(可以理解为API接口)
 ，应用服务是领域服务的直接调用者，它主要协调对领域服务的操作，同时像发送基于某个事件的消息通知、发邮件、短信给用户等操作都会写在应用层，这样能让领域服务能专注于核心的业务逻辑。
-应用服务还有一个作用是，当一个API的逻辑需要多个领域服务一起协作来完成时，一个清晰的解决方案是通过应用服务来对多个领域服务来进行协调调用。
+应用服务还有一个作用是，当一个API的逻辑需要多个领域服务一起协作来完成时，一个清晰地解决方案是通过应用服务来对多个领域服务来进行协调调用。
 
 ### 领域层
 
@@ -173,7 +173,7 @@ lo：Go 语言实用工具库
 
 ### 8. 用户模块
 
-> 效果：用户的注册、登录、登出与认证系统整合
+> 效果：用户的注册、登录、登出 与 认证系统整合
 
 ### 9. 商品模块以及商品分类
 
@@ -315,3 +315,32 @@ sequenceDiagram
 
 
 
+
+
+d:\Environments\GoWorks\src\github.com\Cospk\go-mall\
+├── api                  # API定义
+│   ├── proto            # Protobuf定义
+│   └── swagger          # Swagger文档
+├── cmd                  # 入口程序
+│   ├── api-gateway      # API网关服务
+│   ├── user-service     # 用户服务
+│   ├── product-service  # 商品服务
+│   └── order-service    # 订单服务
+├── pkg                  # 公共包
+│   ├── auth             # 认证相关
+│   ├── config           # 配置相关
+│   ├── database         # 数据库相关
+│   ├── errors           # 错误处理
+│   ├── logger           # 日志相关
+│   └── middleware       # 中间件
+├── internal             # 内部包
+│   ├── user             # 用户服务
+│   ├── product          # 商品服务
+│   ├── order            # 订单服务
+│   └── payment          # 支付服务
+├── scripts              # 脚本文件
+├── configs              # 配置文件
+├── deployments          # 部署文件
+│   ├── docker           # Docker相关
+│   └── kubernetes       # Kubernetes相关
+└── docs                 # 文档
