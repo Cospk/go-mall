@@ -68,22 +68,22 @@ func InitApiRouter() *gin.Engine {
 		// 商品相关路由
 		commodityGroup := api.Group("/commodity")
 		{
-			commodityGroup.GET("/category-hierarchy", commodityHandler.GetCommodityList)
-			commodityGroup.GET("/category", commodityHandler.GetCommodityDetail)
-			commodityGroup.GET("/commodity-in-cate", commodityHandler.GetCommodityDetail)
-			commodityGroup.GET("/search", commodityHandler.GetCommodityDetail)
-			commodityGroup.GET(":commodity_id/info", commodityHandler.GetCommodityDetail)
+			commodityGroup.GET("/category-hierarchy", commodityHandler.GetCategoryHierarchy)
+			commodityGroup.GET("/category", commodityHandler.GetCategoriesWithParentId)
+			commodityGroup.GET("/commodity-in-cate", commodityHandler.CommoditiesInCategory)
+			commodityGroup.GET("/search", commodityHandler.CommoditySearch)
+			commodityGroup.GET(":commodity_id/info", commodityHandler.CommodityInfo)
 		}
 
 		// 订单相关路由
 		orderGroup := api.Group("/order")
 		orderGroup.Use(middleware.AuthMiddleware())
 		{
-			orderGroup.POST("/create", orderHandler.CreateOrder)
-			orderGroup.GET("/user-order", orderHandler.GetOrderList)
-			orderGroup.GET("/:order_no/info", orderHandler.GetOrderDetail)
-			orderGroup.PATCH("/:order_no/cancel", orderHandler.GetOrderDetail)
-			orderGroup.POST("create-pay", orderHandler.GetOrderDetail)
+			orderGroup.POST("/create", orderHandler.OrderCreate)
+			orderGroup.GET("/user-order", orderHandler.UserOrders)
+			orderGroup.GET("/:order_no/info", orderHandler.OrderInfo)
+			orderGroup.PATCH("/:order_no/cancel", orderHandler.OrderCancel)
+			orderGroup.POST("create-pay", orderHandler.CreateOrderPay)
 		}
 
 		// 购物车相关路由
@@ -91,8 +91,10 @@ func InitApiRouter() *gin.Engine {
 		cartGroup.Use(middleware.AuthMiddleware())
 		{
 			cartGroup.POST("/add-item", cartHandler.AddToCart)
-			cartGroup.GET("/update-item", cartHandler.GetCartList)
-			cartGroup.DELETE("/item", cartHandler.RemoveFromCart)
+			cartGroup.GET("/update-item", cartHandler.UpdateCartItem)
+			cartGroup.GET("/item", cartHandler.UserCartItems)
+			cartGroup.DELETE("/item/:item_id", cartHandler.DeleteUserCartItem)
+			cartGroup.GET("/item/check-bill", cartHandler.CheckCartItemBill)
 		}
 
 		// 评价相关路由

@@ -27,6 +27,7 @@ service StreamGreeter {
 message OrderCreateRequest {
   repeated int64 cart_item_ids = 1;
   int64 address_id = 2;
+  int64 user_id = 3;
 }
 
 message OrderCreateReply {
