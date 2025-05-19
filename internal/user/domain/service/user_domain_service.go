@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"github.com/Cospk/go-mall/internal/user/domain/model"
+	"github.com/Cospk/go-mall/internal/user/domain/entity"
 	"github.com/Cospk/go-mall/internal/user/domain/repository"
 )
 
@@ -19,6 +19,6 @@ func NewUserService(userRepo repository.UserRepository) *UserService {
 }
 
 // GetUserInfo 获取用户信息
-func (s *UserService) GetUserInfo(ctx context.Context, userID int64) (*model.User, error) {
+func (s *UserService) GetUserInfo(ctx context.Context, userID int64) (*entity.User, error) {
 	return s.userRepo.GetByID(ctx, userID)
 }

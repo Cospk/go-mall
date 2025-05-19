@@ -3,7 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
-	"github.com/Cospk/go-mall/internal/user/domain/model"
+	"github.com/Cospk/go-mall/internal/user/domain/entity"
 	"github.com/pkg/errors"
 	"time"
 )
@@ -21,14 +21,14 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 }
 
 // GetByID 根据ID获取用户
-func (r *UserRepository) GetByID(ctx context.Context, id int64) (*model.User, error) {
+func (r *UserRepository) GetByID(ctx context.Context, id int64) (*entity.User, error) {
 	query := `
 		SELECT id, username, password, email, phone, avatar, created_at, updated_at
 		FROM users
 		WHERE id = ?
 	`
 
-	var user model.User
+	var user entity.User
 	var createdAt, updatedAt string
 
 	err := r.db.QueryRowContext(ctx, query, id).Scan(

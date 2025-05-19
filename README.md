@@ -131,7 +131,7 @@ lo：Go 语言实用工具库
 │   │   ├── service  # 应用服务
 │   │   └── domain   # 领域服务/对象
 │   ├── dal          # 数据访问层
-│   │   ├── model    # 数据模型
+│   │   ├── entity    # 数据模型
 │   │   ├── dao      # 数据操作
 │   │   └── cache    # 缓存
 │   └── event        # 领域事件（原dal/event）
